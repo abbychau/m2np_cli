@@ -13,6 +13,7 @@ type action func(s *shell, inputs []byte) (string, error)
 
 func distribute(s *shell, inputs []byte, actions ...map[string]action) (string, error) {
 	args := strings.Split(string(inputs), " ")
+	fmt.Printf("%v", args)
 	for _, as := range actions {
 		if action, ok := as[args[0]]; ok {
 			res, err := action(s, inputs)
@@ -25,10 +26,11 @@ func distribute(s *shell, inputs []byte, actions ...map[string]action) (string, 
 			keys = append(keys, k)
 		}
 	}
-	return fmt.Sprintf("unknow command %s, reference %v\n", args[0], keys), nil
+	return fmt.Sprintf("unknown command %s, reference %v\n", args[0], actions), nil
 }
 
 var baseActions = map[string]action{
+
 	"cd": func(s *shell, inputs []byte) (string, error) {
 		args := strings.Split(string(inputs), " ")
 		if len(args) != 2 {
@@ -61,7 +63,7 @@ var baseActions = map[string]action{
 		return buffer.String(), nil
 	},
 	"os": func(s *shell, inputs []byte) (string, error) {
-		if s.ctx.User != "" {
+		if s.ctx.User.Username != "" {
 			return fmt.Sprintf("username: %s\n", s.ctx.User), nil
 		}
 		return "no login.\n", nil
@@ -73,6 +75,11 @@ var baseActions = map[string]action{
 }
 
 var rootActions = map[string]action{
+	"logout": func(s *shell, inputs []byte) (string, error) {
+		s.ctx.Token = ""
+		s.ctx.User.Username = ""
+		return "logout successful!\n", nil
+	},
 	"login": func(s *shell, inputs []byte) (string, error) {
 		args := strings.Split(string(inputs), " ")
 		if len(args) != 3 {
@@ -83,7 +90,7 @@ var rootActions = map[string]action{
 			return "", errors.New("login fail")
 		}
 		s.ctx.Token = token
-		s.ctx.User = args[1]
+		s.ctx.User.Username = args[1]
 		return "login successful!\n", nil
 	},
 }

@@ -8,29 +8,29 @@ import (
 )
 
 type shell struct {
-	in *bufio.Reader
-	ctx *ctx.M2npContext
+	in       *bufio.Reader
+	ctx      *ctx.M2npContext
 	position *directory
 }
 
-func New() *shell{
+func New() *shell {
 	return &shell{
-		in: bufio.NewReader(os.Stdin),
-		ctx: &ctx.M2npContext{},
+		in:       bufio.NewReader(os.Stdin),
+		ctx:      &ctx.M2npContext{},
 		position: root,
 	}
 }
 
-func (s *shell) Start(){
-	for{
-		fmt.Printf("[root@m2np %s]# ", s.position.name)
+func (s *shell) Start() {
+	for {
+		fmt.Printf("[%s@m2np %s]# ", s.ctx.User.Username, s.position.name)
 		inputs, err := s.readline()
-		if err != nil{
+		if err != nil {
 			fmt.Println(err.Error())
 			continue
 		}
 		res, err := s.position.action(s, inputs)
-		if err != nil{
+		if err != nil {
 			fmt.Println(err.Error())
 			continue
 		}
@@ -38,7 +38,7 @@ func (s *shell) Start(){
 	}
 }
 
-func (s *shell) readline() ([]byte, error){
+func (s *shell) readline() ([]byte, error) {
 	inputs, err := s.in.ReadBytes('\n')
-	return inputs[0:len(inputs) - 1], err
+	return inputs[0 : len(inputs)-1], err
 }

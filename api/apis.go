@@ -25,6 +25,7 @@ func Login(user, pwd string) (string, error) {
 	}
 	var res = map[string]string{}
 	_ = json.NewDecoder(resp.Body).Decode(&res)
+	fmt.Println(res)
 	return res["token"], nil
 }
 
